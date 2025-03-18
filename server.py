@@ -14,7 +14,7 @@ latest_data = {}
 # MQTT Configuration
 MQTT_BROKER = "a33kmmzjqzsgb9-ats.iot.us-east-1.amazonaws.com"
 MQTT_PORT = 8883
-MQTT_TOPIC = "gym/sensor/data"
+MQTT_TOPIC = "gym/sensor/processed"
 
 # Fixed on_connect callback (4 parameters for VERSION1)
 def on_connect(client, userdata, flags, rc):
@@ -27,7 +27,10 @@ def on_message(client, userdata, msg):
     try:
         payload = msg.payload.decode("utf-8")
         latest_data = json.loads(payload)
-        print(f"Received data: {latest_data}")
+        if "Energy_Wh" not in latest_data:
+            latest_data["Energy_Wh"]=latest_data.get("Current_A",0)*latest_data.get("Voltage_V",0)*1
+        print(f"Updated Data with Energy_Wh: {latest_data}")
+       # print(f"Received data: {latest_data}")
     except Exception as e:
         print(f"Error processing message: {e}")
 
